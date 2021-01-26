@@ -21,7 +21,12 @@ public class OrderBook {
   // Keep price sorted map.
   Map<Double, Map<Long, Order>> bidOrdersMap = new ConcurrentSkipListMap<>(Comparator.comparingDouble(o -> (double) o)
                                                                                 .reversed());
-  // keeping this separate map to allow for faster removals
+
+  // keeping this separate map to allow for faster updates/removals
+  // having a separate id2OrdersMap allows us to remove/update orders with the order id.
+  // We could have kept the single ordersMap above, however the above is keyed by
+  // order price, and it would have required a linear traversal to identify the record to
+  // be removed/updated. This method allows us to get the order to update in amortized O(1) time (as its using a map).
   Map<Long, Order> bidOrderId2OrdersMap = new ConcurrentHashMap<>();
 
   Map<Double, Map<Long, Order>> offerOrdersMap = new ConcurrentSkipListMap<>(Comparator.comparingDouble(o -> (double) o));
